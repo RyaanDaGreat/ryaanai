@@ -1,68 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RyaanGPT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI RPG World</title>
 
-    <link rel="stylesheet" href="style.css">
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0b1220;
+  color: white;
+}
+
+header {
+  padding: 10px;
+  text-align: center;
+  background: #111827;
+}
+
+#stats {
+  padding: 10px;
+  background: #1f2937;
+  display: flex;
+  justify-content: space-around;
+}
+
+#chat {
+  height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.msg {
+  padding: 10px;
+  margin: 6px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.user { background: #2563eb; margin-left: auto; }
+.ai { background: #374151; }
+
+#inputBox {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+}
+
+input {
+  flex: 1;
+  padding: 15px;
+}
+
+button {
+  padding: 15px;
+  background: #22c55e;
+  border: none;
+}
+</style>
 </head>
 
 <body>
 
-    <!-- Background Glow -->
-    <div class="bg-glow"></div>
+<header>⚔️ AI RPG WORLD</header>
 
-    <!-- Main App -->
-    <div class="chat-container">
+<div id="stats">
+  <div>⭐ Level: <span id="level">1</span></div>
+  <div>🔥 XP: <span id="xp">0</span></div>
+  <div>❤️ HP: <span id="hp">100</span></div>
+</div>
 
-        <!-- Header -->
-        <div class="top-bar">
+<div id="chat"></div>
 
-            <div class="ai-status">
-                <div class="online-dot"></div>
-                <span>RyaanGPT Online</span>
-            </div>
+<div id="inputBox">
+  <input id="input" placeholder="Type your action..." />
+  <button onclick="send()">Send</button>
+</div>
 
-            <h1>RyaanGPT</h1>
+<script>
+let level = 1;
+let xp = 0;
+let hp = 100;
 
-            <p class="subtitle">
-                Crystal Black AI Assistant 🖤
-            </p>
+function updateStats() {
+  document.getElementById("level").innerText = level;
+  document.getElementById("xp").innerText = xp;
+  document.getElementById("hp").innerText = hp;
+}
 
-        </div>
+function add(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.innerText = text;
+  document.getElementById("chat").appendChild(div);
+  document.getElementById("chat").scrollTop = 999999;
+}
 
-        <!-- Chat Area -->
-        <div id="chat-box" class="chat-box">
+// 🎮 LEVEL SYSTEM
+function gainXP(amount) {
+  xp += amount;
 
-            <div class="bot-message">
-                👋 Hey! I'm <strong>RyaanGPT</strong>.
-                Ask me anything 😎
-            </div>
+  if (xp >= level * 100) {
+    xp = 0;
+    level++;
+    hp += 20;
+    add("🎉 You leveled up! You are now Level " + level, "ai");
+  }
 
-        </div>
+  updateStats();
+}
 
-        <!-- Input -->
-        <div class="input-area">
+async function send() {
+  const input = document.getElementById("input");
+  const text = input.value;
+  if (!text) return;
 
-            <input
-                type="text"
-                id="user-input"
-                placeholder="Message RyaanGPT..."
-                onkeypress="if(event.key==='Enter') sendMessage()"
-            >
+  add("You: " + text, "user");
+  input.value = "";
 
-            <button onclick="sendMessage()">
-                ➤
-            </button>
+  const res = await fetch("/.netlify/functions/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message:
+        "You are a dungeon master in an RPG game. Respond with story + consequences + reward XP." +
+        " Player action: " + text
+    })
+  });
 
-        </div>
+  const data = await res.json();
 
-    </div>
+  add(data.reply, "ai");
 
-    <script src="script.js"></script>
+  // 🎯 SIMPLE RPG RULE ENGINE
+  if (text.includes("fight") || text.includes("attack")) {
+    gainXP(40);
+    hp -= 10;
+  } else if (text.includes("help") || text.includes("save")) {
+    gainXP(25);
+  } else {
+    gainXP(10);
+  }
+
+  updateStats();
+}
+
+updateStats();
+</script>
 
 </body>
-
 </html>
