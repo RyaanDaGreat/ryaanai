@@ -1,58 +1,60 @@
-function sendMessage() {
+async function sendMessage() {
 
     const input = document.getElementById("user-input");
     const chatBox = document.getElementById("chat-box");
 
-    let text = input.value.trim();
+    const message = input.value.trim();
 
-    if (!text) return;
+    if (!message) return;
 
+    // user message
     chatBox.innerHTML += `
-        <div class="user-message">${text}</div>
+        <div class="user-message">
+            ${message}
+        </div>
     `;
 
     input.value = "";
 
-    setTimeout(() => {
+    // thinking bubble
+    const thinking = document.createElement("div");
+    thinking.className = "bot-message";
+    thinking.innerText =
+        "🧠 RyaanGPT GOD MODE thinking...";
+    chatBox.appendChild(thinking);
 
-        let reply = brain(text);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-        chatBox.innerHTML += `
-            <div class="bot-message">${reply}</div>
-        `;
+    try {
 
-        chatBox.scrollTop = chatBox.scrollHeight;
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/microsoft/DialoGPT-large",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    inputs: message
+                })
+            }
+        );
 
-    }, 500);
+        const data = await response.json();
+
+        let reply =
+            data.generated_text ||
+            "⚡ My aura is too powerful. Try again 😎";
+
+        thinking.innerText = reply;
+
+    } catch (error) {
+
+        thinking.innerText =
+            "❌ GOD MODE connection failed 😭";
+    }
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
 }
 
-function brain(text) {
-
-    text = text.toLowerCase();
-
-    if (text.includes("hello") || text.includes("hi")) {
-        return "Hey 😄 I'm RyaanGPT. What can I help you with today?";
-    }
-
-    if (text.includes("who are you")) {
-        return "I am RyaanGPT 🖤 A futuristic AI assistant built to help, chat and think with you.";
-    }
-
-    if (text.includes("dragon")) {
-        return "🔥 Dragons are legendary. Want me to create a dragon story or game idea?";
-    }
-
-    if (text.includes("game")) {
-        return "🎮 I can help build games, ideas, bosses, powers, or cool mechanics.";
-    }
-
-    if (text.includes("anime")) {
-        return "😎 Anime mode activated. Want action, mystery, fantasy, or detective style?";
-    }
-
-    if (text.includes("sad")) {
-        return "🖤 I’m here. Want to talk about it?";
-    }
-
-    return "Interesting 🤔 Tell me more so I can understand better.";
-}
