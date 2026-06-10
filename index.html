@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI RPG World</title>
+<title>HTML RPG Game</title>
 
 <style>
 body {
@@ -19,14 +19,14 @@ header {
 }
 
 #stats {
-  padding: 10px;
-  background: #1f2937;
   display: flex;
   justify-content: space-around;
+  background: #1f2937;
+  padding: 10px;
 }
 
 #chat {
-  height: 60vh;
+  height: 65vh;
   overflow-y: auto;
   padding: 10px;
 }
@@ -63,7 +63,7 @@ button {
 
 <body>
 
-<header>⚔️ AI RPG WORLD</header>
+<header>⚔️ PURE HTML RPG WORLD</header>
 
 <div id="stats">
   <div>⭐ Level: <span id="level">1</span></div>
@@ -75,7 +75,7 @@ button {
 
 <div id="inputBox">
   <input id="input" placeholder="Type your action..." />
-  <button onclick="send()">Send</button>
+  <button onclick="send()">Go</button>
 </div>
 
 <script>
@@ -97,6 +97,19 @@ function add(text, type) {
   document.getElementById("chat").scrollTop = 999999;
 }
 
+// 🎲 SIMPLE RPG STORY ENGINE
+function aiResponse(action) {
+  const responses = [
+    "You enter a dark cave and hear whispers in the distance...",
+    "A dragon appears from the shadows, staring at you silently.",
+    "You find an ancient sword glowing with blue energy.",
+    "A mysterious wizard offers you a choice: power or wisdom.",
+    "The ground shakes... something massive is approaching."
+  ];
+
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
 // 🎮 LEVEL SYSTEM
 function gainXP(amount) {
   xp += amount;
@@ -105,13 +118,13 @@ function gainXP(amount) {
     xp = 0;
     level++;
     hp += 20;
-    add("🎉 You leveled up! You are now Level " + level, "ai");
+    add("🎉 LEVEL UP! You are now Level " + level, "ai");
   }
 
   updateStats();
 }
 
-async function send() {
+function send() {
   const input = document.getElementById("input");
   const text = input.value;
   if (!text) return;
@@ -119,31 +132,27 @@ async function send() {
   add("You: " + text, "user");
   input.value = "";
 
-  const res = await fetch("/.netlify/functions/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message:
-        "You are a dungeon master in an RPG game. Respond with story + consequences + reward XP." +
-        " Player action: " + text
-    })
-  });
+  // AI story reply (offline simulation)
+  const reply = aiResponse(text);
+  add(reply, "ai");
 
-  const data = await res.json();
-
-  add(data.reply, "ai");
-
-  // 🎯 SIMPLE RPG RULE ENGINE
-  if (text.includes("fight") || text.includes("attack")) {
+  // ⚔️ GAME LOGIC
+  if (text.includes("attack") || text.includes("fight")) {
     gainXP(40);
     hp -= 10;
-  } else if (text.includes("help") || text.includes("save")) {
+  } 
+  else if (text.includes("explore") || text.includes("search")) {
     gainXP(25);
-  } else {
+  } 
+  else {
     gainXP(10);
   }
 
   updateStats();
+
+  if (hp <= 0) {
+    add("💀 You died... refresh to restart.", "ai");
+  }
 }
 
 updateStats();
