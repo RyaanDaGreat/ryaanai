@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>RyaanGPT</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RyaanGPT</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="chat-container">
+    <!-- Background Glow -->
+    <div class="bg-glow"></div>
 
-  <h1 class="title">RyaanGPT 🖤</h1>
+    <!-- Main App -->
+    <div class="chat-container">
 
-  <div id="
+        <!-- Header -->
+        <div class="top-bar">
+
+            <div class="ai-status">
+                <div class="online-dot"></div>
+                <span>RyaanGPT Online</span>
+            </div>
+
+            <h1>RyaanGPT</h1>
+
+            <p class="subtitle">
+                Crystal Black AI Assistant 🖤
+            </p>
+
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-box" class="chat-box">
+
+            <div class="bot-message">
+                👋 Hey! I'm <strong>RyaanGPT</strong>.
+                Ask me anything 😎
+            </div>
+
+        </div>
+
+        <!-- Input -->
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Message RyaanGPT..."
+                onkeypress="if(event.key==='Enter') sendMessage()"
+            >
+
+            <button onclick="sendMessage()">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
